@@ -1,0 +1,59 @@
+//logit models
+
+logit choice response response_pos2 response_pos3 struncert2 period
+outreg2 using logitoutput.doc, replace ctitle(logit model)
+
+logit choice response response_pos2 response_pos3 struncert2 i.crt_sum riskav gender period
+outreg2 using logitoutput.doc, append ctitle(logit+con)
+
+xtlogit choice response response_pos2 response_pos3 struncert2 period, re
+outreg2 using logitoutput.doc, append ctitle(random effect)
+
+xtlogit choice response response_pos2 response_pos3 struncert2 period, fe
+outreg2 using logitoutput.doc, append ctitle(fixed effect)
+
+
+//splited logit model
+
+quietly logit choice response3 i.crt_sum riskav gender period if struncert2 == 1
+outreg2 using addedlogit_strunc.tex, replace ctitle(logit) tex(fragment pretty) 
+
+quietly xtlogit choice response3 period if struncert2 == 1, fe 
+outreg2 using addedlogit_strunc.tex, append ctitle(fixed effect) tex(fragment pretty) eq(auto)
+
+quietly xtlogit choice response3 i.crt_sum riskav gender period if struncert2 == 1, re 
+outreg2 using addedlogit_strunc.tex, append ctitle(random effect) tex(fragment pretty) eq(auto)
+
+quietly logit choice response3 i.crt_sum riskav gender period if struncert2 == 0
+outreg2 using addedlogit_wostrunc.tex, replace ctitle(logit) tex(fragment pretty) 
+
+quietly xtlogit choice response3 period if struncert2 == 0, fe 
+outreg2 using addedlogit_wostrunc.tex, append ctitle(fixed effect) tex(fragment pretty) eq(auto)
+
+quietly xtlogit choice response3 period i.crt_sum riskav gender period if struncert2 == 0, re 
+outreg2 using addedlogit_wostrunc.tex, append ctitle(random effect) tex(fragment pretty) eq(auto)
+
+
+//hausmann test
+xtlogit choice response response_pos2 response_pos3 struncert2 period, fe
+
+estimates store fixed
+
+xtlogit choice response response_pos2 response_pos3 struncert2 i.crt_sum riskav gender period
+
+hausman fixed
+
+
+//Cox-regression
+
+quietly stset response, failure(choice == 1)
+stcox gender i.crt_sum riskav struncert2 period if postion == 3
+outreg2 using coxmodel.tex, replace ctitle(withdraw) tex(fragment pretty) 
+
+quietly stset response, failure(choice == 0)
+stcox gender i.crt_sum riskav struncert2 period if postion == 3
+outreg2 using coxmodel.tex, append ctitle(waits) tex(fragment pretty) 
+
+
+
+
