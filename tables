@@ -1,0 +1,4 @@
+//descriptives
+
+outreg2 using descstat1.tex if postion == 1 | postion == 2, replace sum(log) keep(choice response struncert2 crt_sum gender riskav)
+outreg2 using descstat2.tex if postion == 3, replace sum(log) keep(choice response struncert2 crt_sum gender riskav)
