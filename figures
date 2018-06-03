@@ -1,0 +1,35 @@
+//histogram
+
+graph drop _all
+histogram response3 if choice==1, ytitle("") xtitle("Response time", size(small)) start(0) width(5) color(navy) name(case1) plotregion(fcolor(white)) graphregion(fcolor(white))
+graph export figure1.png
+histogram response3 if choice==0, ytitle("") xtitle("Response time", size(small)) start(0) width(5) color(navy) name(case2) plotregion(fcolor(white)) graphregion(fcolor(white))
+graph export figure2.png
+
+
+//survival and hazard functions
+
+graph drop _all
+stset response if postion == 3, failure(choice == 1) //setting the database to single-record-per-subject survival date
+sts graph, ytitle("") xtitle("Response time (withdraw)", size(small)) name(case1) plotregion(fcolor(white)) graphregion(fcolor(white))
+graph export survival1.png
+
+
+stset response if postion == 3, failure(choice == 0)
+sts graph, ytitle("") xtitle("Response time (wait)", size(small)) name(case2) plotregion(fcolor(white)) graphregion(fcolor(white))
+graph export survival2.png
+
+graph combine case1 case2
+
+graph drop _all
+stset response, failure(choice == 1) //setting the database to single-record-per-subject survival date
+sts graph if postion == 3, hazard ytitle("") xtitle("Response time (withdraw)", size(small)) name(case1) plotregion(fcolor(white)) graphregion(fcolor(white))
+graph export hazard1.png
+
+
+stset response, failure(choice == 0)
+sts graph if postion == 3, hazard ytitle("") xtitle("Response time (wait)", size(small)) name(case2) plotregion(fcolor(white)) graphregion(fcolor(white))
+graph export hazard2.png
+
+graph combine case1 case2
+graph export hazard.png
